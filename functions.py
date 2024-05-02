@@ -9,6 +9,7 @@ from langchain_core.utils.function_calling import convert_to_openai_function
 import ast
 import uuid
 from typing import Type, Dict
+import os
 
 
 class HistoricalPriceArguments(BaseModel):
@@ -41,6 +42,10 @@ class PlotLineChartTool:
         xaxis_title = "Date"
         yaxis_title = "Price of " + symbol
         fig.update_layout(xaxis_title=xaxis_title, yaxis_title=yaxis_title)
+
+        # Check if the directory exists and create it if necessary
+        if not os.path.exists('images'):
+            os.makedirs('images')
 
         #generate a random file name
         filename = f"images/fig_{uuid.uuid4().hex}.png"

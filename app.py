@@ -1,4 +1,3 @@
-
 import streamlit as st
 from mycrew import generate_response
 import base64
