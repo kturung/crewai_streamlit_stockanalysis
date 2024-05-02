@@ -7,4 +7,3 @@ plotly==5.19.0
 python_dateutil==2.9.0.post0
 streamlit==1.31.1
 yfinance==0.2.37
-pysqlite3-binary
