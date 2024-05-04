@@ -44,14 +44,6 @@ def callback_processor(response):
       expander.write(f"Observation: {agent_action_dict[1]}")
 
 
-requirement_gatherer = Agent(
-  role='Requirement Gatherer',
-  goal='Summarize user requests in a sentence',
-  backstory='A user request summary creator with a knack for understanding user requests and summarizing them in a structured manner.',
-  verbose=True,
-  allow_delegation=False,
-  llm=llm
-)
 
 planner = Agent(
   role='Planner',
@@ -76,36 +68,23 @@ executer = Agent(
   )
 
 
-# Define the tasks in sequence
-
-requirement_task = Task(
-  description="""You need to write a user request summary containing only a single sentence for this question: {question}\n\n
-  You need to gather information about the stock symbol and the number of days for the historical stock price data.\n\n
-  """,
-  expected_output="""A markdown formatted report with the user request summary.\n\n
-  Example output:\n\n
-  ## User request summary\n
-  - AAPL stock analysis for the last 30 days with a visual chart.""",
-  agent=requirement_gatherer
-)
-    
-
 
 planner_task = Task(
-  description=f"""Analyze the data and create a structured step by plan report to achieve the user's request.\n\n
-      You need to utilize these tools:\n\n
-      {str(planner_function_definitions).replace('{', '{{').replace('}', '}}')}
+  description="""Create a structured step by step plan report for this user request:\n
+      {question}\n\n"""
+      f"""You need to utilize these tools:\n\n
+      {str(planner_function_definitions).replace('{', '{{').replace('}', '}}')} \n\n
+      Your plan should contain as few steps as possible, but each step should be clear and concise.\n\n
+      Do not include tool parameters in the plan.
       """,
   expected_output="""A report in markdown strictly in this format:\n\n
-  ## User Request Summary\n
-  - User request summary here\n
   ## Plan\n
+  ### User Request\n
+  - User request summary here\n
   ### Step Number here\n
   - Description: Step description here.\n
-  - Tool: Tool name here\n
   ### Step Number here\n
   - Description: Step description here.\n
-  - Tool: Tool name here\n
   ...
   """,
   agent=planner
@@ -128,9 +107,9 @@ executer_task = Task(
 
 report_crew = Crew(
 
-  agents=[requirement_gatherer, planner, executer],
+  agents=[planner, executer],
 
-  tasks=[requirement_task, planner_task, executer_task],
+  tasks=[planner_task, executer_task],
 
   process=Process.sequential,
 
